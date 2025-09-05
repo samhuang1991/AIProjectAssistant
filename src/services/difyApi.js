@@ -1,6 +1,12 @@
 import axios from 'axios';
 
 // Dify API 配置
+// 注意：请根据您的实际Dify部署情况修改以下配置
+// 1. 如果使用Dify云服务，BASE_URL通常是 https://api.dify.ai/v1
+// 2. 如果是自部署，请替换为您的实际域名，如 https://your-domain.com/v1
+// 3. API_KEY请在Dify控制台的应用设置中获取
+// 4. 本应用使用工作流(workflows)模式，请确保在Dify中创建了相应的工作流
+// 5. 工作流应该接收inputs参数，并在outputs中返回结果
 const DIFY_BASE_URL = 'https://api.dify.ai/v1'; // 请替换为实际的Dify API地址
 const DIFY_API_KEY = 'app-koHqoLLuV93DnsgOQiPuhGQq'; // 请替换为实际的API密钥
 
@@ -48,12 +54,15 @@ export const difyApiService = {
         const response = await difyClient.post('/workflows/run', {
           inputs: {
             action: 'create_task',
-            task_data: taskData
+            task_data: JSON.stringify(taskData)
           },
           response_mode: 'blocking',
           user: 'user-' + Date.now()
         });
-        return response.data;
+        return {
+          success: true,
+          data: response.data.data?.outputs || response.data
+        };
       } catch (error) {
         console.error('创建任务失败:', error);
         // 模拟数据用于演示
@@ -333,21 +342,94 @@ export const difyApiService = {
     // 发送消息并获取AI回复
     sendMessage: async (message, context = {}) => {
       try {
-        const response = await difyClient.post('/chat-messages', {
-          inputs: context,
-          query: message,
+        const response = await difyClient.post('/workflows/run', {
+          inputs: {
+            prompt: message,
+            context: context.context || 'project_management'
+          },
           response_mode: 'blocking',
-          conversation_id: context.conversation_id || '',
           user: 'user-' + Date.now()
         });
-        return response.data;
+        
+        // 处理Dify API的成功响应
+        if (response.data) {
+          return {
+            success: true,
+            data: {
+              answer: response.data.data?.outputs?.text || response.data.data?.outputs?.answer || response.data.answer || '抱歉，我无法理解您的请求。',
+              conversation_id: context.conversation_id || 'conv-' + Date.now(),
+              message_id: response.data.workflow_run_id || 'msg-' + Date.now(),
+              created_at: response.data.created_at || new Date().toISOString()
+            }
+          };
+        }
+        
+        throw new Error('Invalid response from Dify API');
       } catch (error) {
         console.error('发送消息失败:', error);
-        // 模拟数据用于演示
+        
+        // 检查具体错误类型
+        if (error.code === 'ENOTFOUND') {
+          return {
+            success: false,
+            error: 'API连接错误',
+            data: {
+              answer: '⚠️ 无法连接到Dify API服务器。请检查：\n\n1. 网络连接是否正常\n2. DIFY_BASE_URL是否正确\n3. 防火墙设置是否阻止了连接',
+              conversation_id: context.conversation_id || 'conv-' + Date.now(),
+              message_id: 'msg-' + Date.now(),
+              created_at: new Date().toISOString()
+            }
+          };
+        }
+        
+        if (error.response?.status === 401) {
+          return {
+            success: false,
+            error: 'API认证错误',
+            data: {
+              answer: '🔑 API密钥认证失败。请检查：\n\n1. DIFY_API_KEY是否正确\n2. API密钥是否已过期\n3. 是否有访问该工作流的权限',
+              conversation_id: context.conversation_id || 'conv-' + Date.now(),
+              message_id: 'msg-' + Date.now(),
+              created_at: new Date().toISOString()
+            }
+          };
+        }
+        
+        if (error.response?.status === 400) {
+          const errorDetail = error.response?.data?.message || error.response?.data?.error || '请求格式错误';
+          return {
+            success: false,
+            error: '请求格式错误',
+            data: {
+              answer: `⚠️ 请求格式错误 (400)：\n\n${errorDetail}\n\n可能的原因：\n1. 工作流不存在或未发布\n2. 输入参数格式不正确\n3. 工作流配置有误\n\n请检查Dify控制台中的工作流设置。`,
+              conversation_id: context.conversation_id || 'conv-' + Date.now(),
+              message_id: 'msg-' + Date.now(),
+              created_at: new Date().toISOString()
+            }
+          };
+        }
+        
+        if (error.response?.status === 404) {
+          return {
+            success: false,
+            error: '工作流未找到',
+            data: {
+              answer: '❌ 工作流未找到 (404)。请检查：\n\n1. 工作流是否已创建\n2. 工作流是否已发布\n3. API密钥是否对应正确的应用',
+              conversation_id: context.conversation_id || 'conv-' + Date.now(),
+              message_id: 'msg-' + Date.now(),
+              created_at: new Date().toISOString()
+            }
+          };
+        }
+        
+        // 其他错误情况
+        const statusCode = error.response?.status || 'Unknown';
+        const errorDetail = error.response?.data?.message || error.message;
         return {
-          success: true,
+          success: false,
+          error: error.message,
           data: {
-            answer: '我理解您的需求。基于当前项目状态，我建议优先处理高优先级任务，并关注即将到期的任务。您需要我帮您创建新任务还是查看现有任务的详细信息？',
+            answer: `❌ 请求失败 (${statusCode})：\n\n${errorDetail}\n\n请检查网络连接和API配置，或联系管理员。`,
             conversation_id: context.conversation_id || 'conv-' + Date.now(),
             message_id: 'msg-' + Date.now(),
             created_at: new Date().toISOString()

@@ -142,6 +142,58 @@ body {
   color: #374151;
 }
 
+/* Markdown 内容样式优化 */
+.prose {
+  color: #374151;
+  line-height: 1.6;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  color: #111827;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.prose code {
+  font-family: 'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+}
+
+.prose pre {
+  background-color: #1f2937;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background-color: transparent;
+  color: #f9fafb;
+  padding: 0;
+}
+
+.prose blockquote {
+  border-left: 4px solid #d1d5db;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.prose th, .prose td {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.prose th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
 /* 自定义滚动条 */
 ::-webkit-scrollbar {
   width: 6px;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import {
   Send,
   MessageSquare,
@@ -107,27 +108,29 @@ const ChatAssistant = () => {
         context: 'project_management'
       });
 
-      if (response.success) {
-        const aiMessage = {
-          id: Date.now() + 1,
-          type: 'ai',
-          content: response.data.answer,
-          timestamp: new Date().toLocaleTimeString(),
-          suggestions: getContextualSuggestions(textToSend)
-        };
-        
-        setMessages(prev => [...prev, aiMessage]);
-        
-        if (response.data.conversation_id) {
-          setConversationId(response.data.conversation_id);
-        }
+      // 处理API响应（无论成功还是失败）
+      const aiMessage = {
+        id: Date.now() + 1,
+        type: 'ai',
+        content: response.data.answer,
+        timestamp: new Date().toLocaleTimeString(),
+        suggestions: response.success ? getContextualSuggestions(textToSend) : null,
+        isError: !response.success
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+      
+      // 只有在成功时才更新conversation_id
+      if (response.success && response.data.conversation_id) {
+        setConversationId(response.data.conversation_id);
       }
+      
     } catch (error) {
       console.error('发送消息失败:', error);
       const errorMessage = {
         id: Date.now() + 1,
         type: 'ai',
-        content: '抱歉，我暂时无法处理您的请求。请稍后再试。',
+        content: '❌ 网络连接错误，请检查网络设置后重试。',
         timestamp: new Date().toLocaleTimeString(),
         isError: true
       };
@@ -256,9 +259,53 @@ const ChatAssistant = () => {
                         ? 'bg-danger-50 text-danger-800 border border-danger-200'
                         : 'bg-gray-100 text-gray-900'
                   }`}>
-                    <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                      {message.content}
-                    </div>
+                    {message.type === 'user' ? (
+                      <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                        {message.content}
+                      </div>
+                    ) : (
+                      <div className="text-sm leading-relaxed prose prose-sm max-w-none">
+                        <ReactMarkdown
+                          components={{
+                            // 自定义组件样式
+                            h1: ({children}) => <h1 className="text-lg font-bold mb-2 text-gray-900">{children}</h1>,
+                            h2: ({children}) => <h2 className="text-base font-semibold mb-2 text-gray-900">{children}</h2>,
+                            h3: ({children}) => <h3 className="text-sm font-medium mb-1 text-gray-900">{children}</h3>,
+                            p: ({children}) => <p className="mb-2 last:mb-0 text-gray-800">{children}</p>,
+                            ul: ({children}) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+                            ol: ({children}) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+                            li: ({children}) => <li className="text-gray-800">{children}</li>,
+                            code: ({children, className}) => {
+                              const isInline = !className;
+                              return isInline ? (
+                                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs font-mono text-gray-900">
+                                  {children}
+                                </code>
+                              ) : (
+                                <code className="block bg-gray-800 text-gray-100 p-3 rounded-md text-xs font-mono overflow-x-auto">
+                                  {children}
+                                </code>
+                              );
+                            },
+                            pre: ({children}) => <div className="mb-2">{children}</div>,
+                            blockquote: ({children}) => (
+                              <blockquote className="border-l-4 border-gray-300 pl-3 italic text-gray-700 mb-2">
+                                {children}
+                              </blockquote>
+                            ),
+                            strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                            em: ({children}) => <em className="italic">{children}</em>,
+                            a: ({children, href}) => (
+                              <a href={href} className="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">
+                                {children}
+                              </a>
+                            )
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
+                    )}
                   </div>
                   
                   {/* 时间戳和操作 */}

@@ -1,224 +1,168 @@
 # AI智能体项目管理助手
 
-一个基于AI驱动的现代化项目管理平台，通过"对话式操作"与"主动式预警"，将项目管理从"人找信息"的被动模式转变为"信息找人"的主动模式。
+一个基于React和Dify的智能项目管理助手，通过对话式操作和主动式预警，将项目管理从"人找信息"转变为"信息找人"的主动模式。
 
-## 🎯 项目概述
+## 功能特性
 
-传统项目管理严重依赖人工操作Jira，流程繁琐、信息割裂。同时，项目风险依赖被动发现，管理模式滞后，常导致进度延期与成本超支。
+### 🎯 核心功能
+- **仪表板**: 项目概览、关键指标、数据可视化
+- **任务管理**: 对话式创建和管理Jira任务，支持增删改查
+- **风险预警**: 主动推送风险信息，多维度风险分析
+- **健康报告**: 自然语言查询项目健康状况
+- **AI助手**: 智能对话式项目管理交互
 
-本智能体通过AI技术，实现：
-- **对话式操作**：通过自然语言交互简化任务管理
-- **主动式预警**：基于历史数据分析，主动推送风险预警
-- **智能分析**：自动生成项目健康报告和风险评估
-- **效能提升**：减少团队事务性耗时，提升开发专注度
+### 🛠️ 技术栈
+- React 18 + Vite
+- Tailwind CSS
+- Recharts (数据可视化)
+- Lucide React (图标)
+- Axios (HTTP客户端)
+- Dify API集成
 
-## ✨ 核心功能
+## 快速开始
 
-### 📊 智能仪表板
-- 项目概览和关键指标实时展示
-- 多维度数据可视化图表
-- 团队效能和进度趋势分析
-- 风险预警统计和即将到期任务提醒
-
-### 📋 任务管理
-- 对话式创建和管理Jira任务
-- 支持任务的增删改查操作
-- 智能搜索和多维度过滤
-- 任务状态流转管理
-- AI助手辅助任务操作
-
-### ⚠️ 风险预警中心
-- 主动推送项目风险信息
-- 多类型风险识别（进度延期、资源冲突、质量问题等）
-- 风险严重程度智能分级
-- 自动生成风险评估报告
-- 风险处理状态跟踪
-
-### 📈 项目健康报告
-- 自然语言查询项目状态
-- 项目组合健康状况分析
-- 智能数据可视化展示
-- 团队效能指标监控
-- 一键导出详细报告
-
-### 🤖 AI智能助手
-- 24/7对话式项目管理支持
-- 上下文感知的智能建议
-- 快捷功能入口和操作指导
-- 对话历史管理和导出
-
-## 🛠️ 技术栈
-
-### 前端技术
-- **React 18** - 现代化前端框架
-- **Vite** - 快速构建工具
-- **React Router** - 单页应用路由管理
-- **Tailwind CSS** - 原子化CSS框架
-- **Lucide React** - 现代化图标库
-- **Recharts** - 数据可视化图表库
-
-### AI集成
-- **Dify API** - AI工作流编排平台
-- **自然语言处理** - 对话式交互
-- **智能分析引擎** - 风险预测和报告生成
-
-## 🚀 快速开始
-
-### 环境要求
-- Node.js >= 16.0.0
-- npm >= 8.0.0
-
-### 安装步骤
-
-1. **克隆项目**
-```bash
-git clone <repository-url>
-cd ai_project3
-```
-
-2. **安装依赖**
+### 1. 安装依赖
 ```bash
 npm install
 ```
 
-3. **配置环境变量**
-```bash
-# 复制环境变量模板
-cp .env.example .env
+### 2. 配置Dify API
 
-# 编辑 .env 文件，配置Dify API信息
-DIFY_API_URL=your_dify_api_url
-DIFY_API_KEY=your_dify_api_key
+编辑 `src/services/difyApi.js` 文件，配置您的Dify API：
+
+```javascript
+// Dify API 配置
+const DIFY_BASE_URL = 'https://api.dify.ai/v1'; // 或您的自部署地址
+const DIFY_API_KEY = 'your-actual-api-key';     // 您的实际API密钥
 ```
 
-4. **启动开发服务器**
+#### 获取Dify API密钥的步骤：
+1. 登录您的Dify控制台
+2. 选择或创建一个应用
+3. 在应用设置中找到"API密钥"部分
+4. 复制API密钥并替换上述配置中的 `your-actual-api-key`
+
+#### Dify工作流配置建议：
+为了最佳体验，建议在Dify中创建以下工作流：
+
+1. **任务管理工作流**
+   - 输入参数：`action`, `task_data`, `task_id`, `update_data`
+   - 支持操作：创建任务、查询任务、更新任务、删除任务
+
+2. **风险预警工作流**
+   - 输入参数：`action`, `project_id`
+   - 输出：风险列表、风险评估报告
+
+3. **健康报告工作流**
+   - 输入参数：`query`
+   - 输出：项目健康数据、分析结果
+
+4. **聊天助手工作流**
+   - 使用Dify的对话应用类型
+   - 集成上下文理解和项目管理知识库
+
+### 3. 启动开发服务器
 ```bash
 npm run dev
 ```
 
-5. **访问应用**
-打开浏览器访问 `http://localhost:3000`
+应用将在 http://localhost:3000 启动
 
-### 构建生产版本
+### 4. 构建生产版本
 ```bash
 npm run build
-npm run preview
 ```
 
-## 📁 项目结构
+## API集成说明
+
+### 当前状态
+- ✅ 完整的前端界面和交互
+- ✅ Dify API服务层封装
+- ✅ 错误处理和用户反馈
+- ⚠️ 需要配置真实的Dify API密钥
+
+### API响应处理
+应用会智能处理不同的API响应情况：
+- **成功响应**: 显示Dify工作流的实际输出
+- **配置错误**: 提示用户检查API配置
+- **网络错误**: 显示网络连接问题提示
+- **其他错误**: 显示具体错误信息
+
+### 调试API连接
+1. 打开浏览器开发者工具
+2. 查看Console标签页的日志输出
+3. 查看Network标签页的API请求详情
+4. 根据错误信息调整配置
+
+## 项目结构
 
 ```
-ai_project3/
-├── src/
-│   ├── components/          # 公共组件
-│   │   └── Layout.jsx       # 主布局组件
-│   ├── pages/               # 页面组件
-│   │   ├── Dashboard.jsx    # 仪表板
-│   │   ├── TaskManagement.jsx # 任务管理
-│   │   ├── RiskAlerts.jsx   # 风险预警
-│   │   ├── HealthReports.jsx # 健康报告
-│   │   └── ChatAssistant.jsx # AI助手
-│   ├── services/            # API服务
-│   │   └── difyApi.js       # Dify API集成
-│   ├── App.jsx              # 主应用组件
-│   ├── main.jsx             # 应用入口
-│   └── index.css            # 全局样式
-├── public/                  # 静态资源
-├── package.json             # 项目配置
-├── vite.config.js           # Vite配置
-├── tailwind.config.js       # Tailwind配置
-└── README.md                # 项目文档
+src/
+├── components/          # 公共组件
+│   └── Layout.jsx      # 主布局组件
+├── pages/              # 页面组件
+│   ├── Dashboard.jsx   # 仪表板
+│   ├── TaskManagement.jsx  # 任务管理
+│   ├── RiskAlerts.jsx  # 风险预警
+│   ├── HealthReports.jsx   # 健康报告
+│   └── ChatAssistant.jsx   # AI助手
+├── services/           # API服务
+│   └── difyApi.js     # Dify API集成
+├── App.jsx            # 主应用组件
+├── main.jsx           # 应用入口
+└── index.css          # 全局样式
 ```
 
-## 🎨 界面预览
+## 使用指南
 
-### 仪表板
-- 项目概览卡片
-- 实时数据图表
-- 关键指标监控
-- 活动时间线
+### AI助手对话
+- 支持自然语言交互
+- 提供快捷功能入口
+- 智能上下文理解
+- 对话历史管理
 
 ### 任务管理
-- 任务列表视图
-- 对话式创建任务
-- 状态流转操作
-- 智能搜索过滤
+- 创建、编辑、删除任务
+- 任务状态流转
+- 智能搜索和过滤
+- 批量操作支持
 
-### 风险预警
-- 风险等级分类
-- 预警详情展示
-- 处理状态跟踪
-- 报告生成功能
+### 风险监控
+- 实时风险预警
+- 多维度风险分析
+- 自动生成评估报告
+- 风险趋势追踪
 
-### AI助手
-- 对话式交互界面
-- 快捷操作入口
-- 智能建议推荐
-- 历史记录管理
+### 数据分析
+- 项目健康度评估
+- 团队效能分析
+- 自然语言查询
+- 可视化报表
 
-## 🔧 配置说明
+## 故障排除
 
-### Dify API配置
+### 常见问题
 
-在 `src/services/difyApi.js` 中配置您的Dify API信息：
+1. **API连接失败**
+   - 检查DIFY_BASE_URL是否正确
+   - 确认DIFY_API_KEY是否有效
+   - 验证网络连接
 
-```javascript
-const DIFY_BASE_URL = 'https://api.dify.ai/v1'; // 您的Dify API地址
-const DIFY_API_KEY = 'your-dify-api-key';      // 您的API密钥
-```
+2. **工作流响应异常**
+   - 检查Dify工作流配置
+   - 确认输入参数格式
+   - 查看Dify控制台日志
 
-### 工作流配置
+3. **页面显示异常**
+   - 清除浏览器缓存
+   - 检查控制台错误信息
+   - 重启开发服务器
 
-确保在Dify平台中创建以下工作流：
-- 任务管理工作流
-- 风险分析工作流
-- 健康报告生成工作流
-- 对话助手工作流
+### 获取帮助
+- 查看浏览器控制台日志
+- 检查Dify应用运行状态
+- 参考Dify官方文档
 
-## 👥 使用场景
+## 许可证
 
-### 开发/测试人员
-- 通过对话快速创建和更新Jira任务
-- 主动接收关键通知与风险预警
-- 提升日常工作效率
-
-### 项目经理
-- 每日接收AI主动推送的进度延期、资源冲突等风险预警
-- 解决风险发现滞后、管理被动、人工跟进耗时的问题
-
-### 团队高管
-- 通过自然语言即时查询项目组合的健康报告
-- 解决获取全局视图困难、依赖人工汇报、决策数据延迟的问题
-
-## 🤝 贡献指南
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
-
-## 📞 联系我们
-
-如有问题或建议，请通过以下方式联系：
-
-- 项目Issues: [GitHub Issues](https://github.com/your-repo/issues)
-- 邮箱: your-email@example.com
-
-## 🙏 致谢
-
-感谢以下开源项目的支持：
-- [React](https://reactjs.org/)
-- [Vite](https://vitejs.dev/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Recharts](https://recharts.org/)
-- [Lucide](https://lucide.dev/)
-- [Dify](https://dify.ai/)
-
----
-
-**让AI赋能项目管理，实现研发效能与交付质量的双重提升！** 🚀
+MIT License
