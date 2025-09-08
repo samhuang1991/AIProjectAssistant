@@ -124,7 +124,7 @@ const Layout = ({ children }) => {
             </div>
             <div className="ml-3">
               <p className="text-sm font-medium text-gray-700">项目管理员</p>
-              <p className="text-xs text-gray-500">admin@company.com</p>
+              <p className="text-xs text-gray-500">xinghao1.huang@tcl.com</p>
             </div>
           </div>
         </div>
